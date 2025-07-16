@@ -4,6 +4,9 @@ using URLShortenerApiApplication.Data;
 using URLShortenerApiApplication.Services;
 using URLShortenerApiApplication.Services.TokenService;
 using URLShortenerApiApplication.Services.RegisterService;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using URLShortenerApiApplication.Models;
 
 namespace URLShortenerApiApplication
 {
@@ -26,6 +29,25 @@ namespace URLShortenerApiApplication
             builder.Services.AddScoped<IRegisterService, RegisterService>();
             builder.Services.AddScoped<ILoginService,LoginService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
+
+            /// // Configure JWT authentication
+            /// 
+            var TokenRes = builder.Configuration.GetSection("Jwt").Get<JwtToken>();
+            builder.Services.AddSingleton(TokenRes);
+            builder.Services.AddAuthentication();
+            builder.Services.AddAuthentication().AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(TokenRes.SigningKey))
+                };
+            });
 
             var app = builder.Build();
 
