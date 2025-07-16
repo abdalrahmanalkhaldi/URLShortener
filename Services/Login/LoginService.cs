@@ -47,6 +47,7 @@ namespace URLShortenerApiApplication.Services
 
             return await Task.FromResult(new UserModel
             {
+                UserId = user.UserId,
                 Username = user.Username,
                 Token = _token.GenerateToken(user)
             });

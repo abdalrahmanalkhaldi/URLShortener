@@ -7,6 +7,7 @@ using URLShortenerApiApplication.Services.RegisterService;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using URLShortenerApiApplication.Models;
+using URLShortenerApiApplication.Services.URLShortener;
 
 namespace URLShortenerApiApplication
 {
@@ -29,6 +30,7 @@ namespace URLShortenerApiApplication
             builder.Services.AddScoped<IRegisterService, RegisterService>();
             builder.Services.AddScoped<ILoginService,LoginService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddScoped<IURLShortenerService, URLShortenerService>();
 
             /// // Configure JWT authentication
             /// 

@@ -1,7 +1,9 @@
-﻿namespace URLShortenerApiApplication.Services.URLShortener
+﻿using URLShortenerApiApplication.Entities;
+
+namespace URLShortenerApiApplication.Services.URLShortener
 {
     public interface IURLShortenerService
     {
-       public  string URLShortener(string url);
+       public Task<ShortenResponseDto> URLShortener(ShortenResquestDto url);
     }
 }
