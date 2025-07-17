@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace URLShortenerApiApplication.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateDatabase : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -35,9 +35,8 @@ namespace URLShortenerApiApplication.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     GneratedURL = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     OriginalURL = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ClickCount = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: true)
+                    UserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -46,7 +45,8 @@ namespace URLShortenerApiApplication.Migrations
                         name: "FK_Urls_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "UserId");
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(

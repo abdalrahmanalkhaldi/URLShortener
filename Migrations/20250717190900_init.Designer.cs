@@ -12,8 +12,8 @@ using URLShortenerApiApplication.Data;
 namespace URLShortenerApiApplication.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250716151924_Update-Database")]
-    partial class UpdateDatabase
+    [Migration("20250717190900_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,9 +33,6 @@ namespace URLShortenerApiApplication.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ClickCount")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -47,7 +44,7 @@ namespace URLShortenerApiApplication.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -89,7 +86,9 @@ namespace URLShortenerApiApplication.Migrations
                 {
                     b.HasOne("URLShortenerApiApplication.Entities.User", null)
                         .WithMany("Urls")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("URLShortenerApiApplication.Entities.User", b =>

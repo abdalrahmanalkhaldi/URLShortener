@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using System.Runtime.InteropServices;
 using System.Text;
 using URLShortenerApiApplication.Data;
@@ -60,6 +61,67 @@ namespace URLShortenerApiApplication.Services.URLShortener
             });
 
         }
-    }
+
+
+        public async Task<string> getTheMainURL(string url )
+        {
+            var generated = _context.Urls.Where(x => x.GneratedURL == url).ToString();
+               
+            if (generated == null)
+            {
+                throw new Exception("Shortened URL not found.");
+            }
+            
+            var result = await _context.Urls.Where(x=>x.GneratedURL == url)
+                .Select(x => x.OriginalURL)
+                .FirstOrDefaultAsync();
+
+            if (result == null)
+            {
+                throw new Exception("Original URL not found.");
+            }
+            return result;
+
+        }
+
+        public async Task<ShortenResponseDto> CustumizeShorten (string url , int userId , string customurl)
+        {
+            if (string.IsNullOrEmpty(url) || userId <= 0 || string.IsNullOrEmpty(customurl))
+            {
+                throw new ArgumentException("Invalid input parameters.");
+            }
+            var newurl = $"https://short.url/{customurl}";
+            var t = new URL
+            {
+                UserId = userId,
+                GneratedURL = newurl,
+                OriginalURL = url,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _context.Urls.AddAsync(t);
+            await _context.SaveChangesAsync();
+
+            return await Task.FromResult(new ShortenResponseDto
+            {
+                ShortenedUrl = t.GneratedURL,
+            });
+        }
+
+
+        public async Task<List<URL>> ListAllUserURLs(int userId)
+        {
+            if (userId <= 0)
+            {
+                throw new ArgumentException("Invalid user ID.");
+            }
+
+            var tt = _context.Urls.Where(x => x.UserId == userId)
+                .ToListAsync();
+
+            return await tt;
+        }
+
+        }
 }
 

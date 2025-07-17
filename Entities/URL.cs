@@ -13,6 +13,6 @@ namespace URLShortenerApiApplication.Entities
         //public int ClickCount { get; set; } = 0; // Default value for click count
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         [ForeignKey("UserId")]
-        public int? UserId { get; set; } // Foreign key to the User table
+        public int UserId { get; set; } // Foreign key to the User table
     }
 }
