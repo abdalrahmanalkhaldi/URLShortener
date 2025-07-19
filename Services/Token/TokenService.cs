@@ -17,8 +17,13 @@ namespace URLShortenerApiApplication.Services.TokenService
         {
             _tokenRes = tokenRes;
         }
-        public string GenerateToken(User user)
+        public string GenerateToken(string? Username)
         {
+            if (string.IsNullOrEmpty(Username))
+            {
+                throw new ArgumentException("Username cannot be null or empty", nameof(Username));
+            }
+
             var JWtTokenHandeler = new JwtSecurityTokenHandler();
             var JwtTokenDescriptor = new SecurityTokenDescriptor
             {
@@ -32,7 +37,7 @@ namespace URLShortenerApiApplication.Services.TokenService
 
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim(ClaimTypes.Name, Username),
                 })
             };
             var SecurityToken = JWtTokenHandeler.CreateToken(JwtTokenDescriptor);

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using URLShortenerApiApplication.Models;
 using URLShortenerApiApplication.Services.URLShortener;
+using URLShortenerApiApplication.Services.UrlBackgroundJob;
 
 namespace URLShortenerApiApplication
 {
@@ -32,8 +33,10 @@ namespace URLShortenerApiApplication
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IURLShortenerService, URLShortenerService>();
 
-            /// // Configure JWT authentication
-            /// 
+            builder.Services.AddHostedService<UrlCleanupService>(); //  the background service for cleaning up expired URLs
+
+
+            ///  Configure JWT authentication
             var TokenRes = builder.Configuration.GetSection("Jwt").Get<JwtToken>();
             builder.Services.AddSingleton(TokenRes);
             builder.Services.AddAuthentication();

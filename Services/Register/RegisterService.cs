@@ -17,7 +17,7 @@ namespace URLShortenerApiApplication.Services.RegisterService
             _context = context;
             _tokenService = token;
         }
-        public async Task<UserModel?> RegisterAsync(RegisterDto registerDto)
+        public async Task<UserModel> RegisterAsync(RegisterDto registerDto)
         {
 
             var user = _context.Users.FirstOrDefault(x => x.Username == registerDto.Username.ToLower());
@@ -27,11 +27,13 @@ namespace URLShortenerApiApplication.Services.RegisterService
             }
             using var hmac = new HMACSHA512();
 
+            var Token = _tokenService.GenerateToken(registerDto.Username);
             var newUser = new User
             {
                 Username = registerDto.Username.ToLower(),
                 PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
-                PasswordSalt = hmac.Key
+                PasswordSalt = hmac.Key,
+                Token = Token
 
             };
 
@@ -41,7 +43,7 @@ namespace URLShortenerApiApplication.Services.RegisterService
             return new UserModel
             {
                 Username = newUser.Username,
-                Token = _tokenService.GenerateToken(newUser)
+                Token = Token
             };
 
         }

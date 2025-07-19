@@ -7,7 +7,7 @@
         //public string CustomCode { get; set; }
         //public bool IsCustomCode { get; set; }
         //public bool IsActive { get; set; } = true;
-        //public int ExpirationDays { get; set; } = 30;
+        public DateTime ExpirationDays { get; set; } 
         public int UserId { get; set; } // Assuming this is the user ID for the owner of the shortened URL
     }
 }

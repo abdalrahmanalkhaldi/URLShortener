@@ -15,17 +15,20 @@ namespace URLShortenerApiApplication.Controllers
     public class URLShortenerController : ControllerBase
     {
         private readonly IURLShortenerService _urlShortenerService;
-        private readonly AppDbContext _context;
-        public URLShortenerController(IURLShortenerService urlShortenerService , AppDbContext context)
+        public URLShortenerController(IURLShortenerService urlShortenerService)
         {
             _urlShortenerService = urlShortenerService;
-            _context = context;
+
         }
 
         [HttpPost]
-        [Route("Short your URL")]
+        [Route("Short_your_URL")]
         public async Task<IActionResult> ShortYourUrl(ShortenResquestDto url)
         {
+            if (url == null)
+            {
+                return BadRequest("URL cannot be null.");
+            }
             var result = await _urlShortenerService.URLShortener(url);
             if (result == null)
             {
@@ -35,15 +38,19 @@ namespace URLShortenerApiApplication.Controllers
         }
 
         [HttpGet]
-        [Route("Get Orginal URL")]
-        public async Task<IActionResult> RedirectTolUrl(string url )
+        [Route("Get_Orginal_URL")]
+        public async Task<IActionResult> GetTheMainUrl(string url )
         {
             var result = await _urlShortenerService.getTheMainURL(url);
+            if (result == null)
+            {
+                return NotFound("URL not found.");
+            }
             return Ok(result);
         }
 
         [HttpPost]
-        [Route("Customize Shorten URL")]
+        [Route("Customize_Shorten_URL")]
         public async Task<IActionResult> CustumizeYourURL(string url, int userId, string customurl)
         {
             if (string.IsNullOrEmpty(customurl) || string.IsNullOrEmpty(url) || userId <= 0)
@@ -61,7 +68,7 @@ namespace URLShortenerApiApplication.Controllers
 
 
         [HttpGet]
-        [Route("List All User URLs")]
+        [Route("List_All_User_URLs")]
         public async Task<ActionResult<List<URL>>> ListAllUserURLs(int userId)
         {
             if (userId <= 0)
@@ -79,20 +86,21 @@ namespace URLShortenerApiApplication.Controllers
         }
 
         [HttpGet]
-        [Route("Get User Info")]
+        [Route("Get_User_Info")]
         public async Task<IActionResult> GetUserInfo(int userId)
         {
-            var user = _context.Users.Find(userId);
-            if (user == null)
+           
+            if (userId == null)
             {
-                return NotFound("User not found.");
+                return BadRequest("You Cant Leave The Argument Null");
             }
-            var result = await _context.Users.Where(u => u.UserId == userId).ToListAsync();
+            var result = await _urlShortenerService.GetTheUserInfo(userId);
+
             return Ok(result);
         }
 
         [HttpDelete]
-        [Route("Delete User URL")]
+        [Route("Delete_User_URL")]
         public ActionResult DeleteUserURL(int userId, string url)
         {
             if (userId <= 0 || string.IsNullOrEmpty(url))
@@ -100,22 +108,71 @@ namespace URLShortenerApiApplication.Controllers
                 return BadRequest("Invalid input parameters.");
             }
 
-            var user = _context.Users.Find(userId);
-            if (user == null)
+            var result = _urlShortenerService.DeleteYourURl(userId, url);
+            if (result==null)
             {
-                return NotFound("User not found.");
+                return NotFound("URL not found or does not belong to the user.");
             }
-
-            var urlToDelete = _context.Urls.FirstOrDefault(u => u.UserId == userId && u.GneratedURL == url);
-            if (urlToDelete == null)
-            {
-                return NotFound("URL not found for the user.");
-            }
-
-            _context.Urls.Remove(urlToDelete);
-            _context.SaveChanges();
-
             return Ok("URL deleted successfully.");
+        }
+
+        [HttpGet]
+        [Route("Redirect")]
+        public async Task<IActionResult> RedirectToUrl(string url)
+        {
+            var  mainnurl = await _urlShortenerService.getTheMainURLRedirect(url);
+            if (mainnurl == null)
+            {
+                return NotFound("URL not found.");
+            }
+            
+            return Redirect(mainnurl); // Redirect to the original URL
+
+        }
+
+        [HttpGet]
+        [Route("Get_URl_INFO")]
+        public async Task<IActionResult> GetTheUrlInfo(int user , string url)
+        {
+            if (string.IsNullOrEmpty(url) || user <= 0)
+            {
+                return BadRequest("URL or UserId cannot be null or empty.");
+            }
+
+           var result = await _urlShortenerService.GetUrlInfo(user, url); 
+            if (result == null)
+            {
+                return NotFound("URL not found.");
+            }
+            return  Ok(result);
+        }
+
+        [HttpPut]
+        [Route("Update_URL_Date")]
+        public async Task<IActionResult> UpdateUrlExpiringDate(string url , DateTime dateTime)
+        {
+            if (string.IsNullOrEmpty(url) || dateTime == default)
+            {
+                return BadRequest("Invalid input parameters.");
+            }
+
+            var result = await _urlShortenerService.UpdateUrlExpiringDate(url, dateTime);
+            return Ok(result);
+        }
+
+        [HttpDelete]
+        [Route("Delete_User")]
+        public async Task<IActionResult> DeleteUser(int user)
+        {
+            if (user == null)
+                return BadRequest("User ID cannot be null.");
+
+           var result = _urlShortenerService.DeleteUser(user);
+            if (result == null)
+            {
+                return NotFound("User not found or does not have any URLs.");
+            }
+            return Ok(result);
         }
     }
 }

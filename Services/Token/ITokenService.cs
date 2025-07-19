@@ -6,6 +6,6 @@ namespace URLShortenerApiApplication.Services.TokenService
     {
 
         //public Task<TokenResponseDto> GenerateToken(User user);
-        public string GenerateToken(User username);
+        public string GenerateToken(string Username);
     }
 }

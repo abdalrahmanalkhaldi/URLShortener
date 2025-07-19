@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using URLShortenerApiApplication.Data;
 using URLShortenerApiApplication.Dto_s;
+using URLShortenerApiApplication.Entities;
 using URLShortenerApiApplication.Models;
 using URLShortenerApiApplication.Services;
 using URLShortenerApiApplication.Services.TokenService;
@@ -21,7 +22,7 @@ namespace URLShortenerApiApplication.Services
             _token = token;
 
         }
-        public async Task<UserModel?> LoginAsync(LoginDto loginDto)
+        public async Task<UserModel> LoginAsync(LoginDto loginDto)
         {
             var user = _context.Users.SingleOrDefault(x => x.Username == loginDto.Username.ToLower());
             if (user ==null )
@@ -45,11 +46,16 @@ namespace URLShortenerApiApplication.Services
                 }
             }
 
+            var Token = _token.GenerateToken(user.Username);
+           
+            _context.Users.Where(u=>u.UserId == user.UserId).ToList().ForEach(u => u.Token = Token);
+            await _context.SaveChangesAsync();
+
             return await Task.FromResult(new UserModel
             {
                 UserId = user.UserId,
                 Username = user.Username,
-                Token = _token.GenerateToken(user)
+                Token = Token,
             });
 
         }
